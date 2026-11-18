@@ -1,0 +1,48 @@
+
+name: Build Kodi Repository
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout customised Arctic Fuse 3
+        uses: actions/checkout@v4
+        with:
+          repository: iampritesh/skin.arctic.fuse.3
+          ref: my-customisations
+          path: skin-source
+
+      - name: Prepare skin
+        run: |
+          mkdir -p repo/skin.arctic.fuse.3
+          cp -a skin-source/. repo/skin.arctic.fuse.3/
+
+      - name: Generate Kodi packages
+        run: python3 _repo_generator.py
+
+      - name: Copy repository installer
+        run: |
+          cp repo/zips/repository.piers/repository.piers-1.0.0.zip .
+
+      - name: Clean up source files
+        run: |
+          rm -rf skin-source
+          rm -rf repo/skin.arctic.fuse.3
+
+      - name: Publish generated files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Build Kodi repository packages
