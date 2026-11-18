@@ -31,7 +31,11 @@ jobs:
           cp -a skin-source/. repo/skin.arctic.fuse.3/
 
       - name: Generate Kodi packages
-        run: python3 _repo_generator.py
+        run: |
+          rm -rf repo/zips
+          python3 _repo_generator.py
+          echo "Generated repository files:"
+          find repo/zips -type f
 
       - name: Copy repository installer
         run: |
